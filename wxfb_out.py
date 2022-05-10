@@ -18,26 +18,26 @@ class TopFrame ( wx.Frame ):
 	def __init__( self, parent ):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		
-		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize)
 		self.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_BTNFACE ) )
 		
 		self.m_menubar1 = wx.MenuBar( 0 )
 		self.file_menu = wx.Menu()
 		self.edit_profile_menu_item = wx.MenuItem( self.file_menu, wx.ID_ANY, u"&Edit Profile"+ u"\t" + u"F2", wx.EmptyString, wx.ITEM_NORMAL )
-		self.file_menu.AppendItem( self.edit_profile_menu_item )
+		self.file_menu.Append( self.edit_profile_menu_item )
 		
 		self.file_menu.AppendSeparator()
 		
 		self.open_profile_menu_item = wx.MenuItem( self.file_menu, wx.ID_ANY, u"&Open Profile"+ u"\t" + u"Ctrl+O", wx.EmptyString, wx.ITEM_NORMAL )
-		self.file_menu.AppendItem( self.open_profile_menu_item )
+		self.file_menu.Append( self.open_profile_menu_item )
 		
 		self.save_profile_menu_item = wx.MenuItem( self.file_menu, wx.ID_ANY, u"&Save Profile"+ u"\t" + u"Ctrl+S", wx.EmptyString, wx.ITEM_NORMAL )
-		self.file_menu.AppendItem( self.save_profile_menu_item )
+		self.file_menu.Append( self.save_profile_menu_item )
 		
 		self.file_menu.AppendSeparator()
 		
 		self.exit_menu_item = wx.MenuItem( self.file_menu, wx.ID_ANY, u"E&xit"+ u"\t" + u"Alt+F4", wx.EmptyString, wx.ITEM_NORMAL )
-		self.file_menu.AppendItem( self.exit_menu_item )
+		self.file_menu.Append( self.exit_menu_item )
 		
 		self.m_menubar1.Append( self.file_menu, u"&File" ) 
 		
@@ -91,7 +91,7 @@ class TopFrame ( wx.Frame ):
 		
 		self.SetSizer( bSizer1 )
 		self.Layout()
-		self.status_bar = self.CreateStatusBar( 1, wx.ST_SIZEGRIP, wx.ID_ANY )
+		self.status_bar = self.CreateStatusBar( 1, wx.STB_SIZEGRIP, wx.ID_ANY )
 		
 		self.Centre( wx.BOTH )
 		
@@ -152,7 +152,7 @@ class ProfileConfigDialog ( wx.Dialog ):
 	def __init__( self, parent ):
 		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Profile Configuration", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.CAPTION )
 		
-		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
 		bSizer5 = wx.BoxSizer( wx.VERTICAL )
 		

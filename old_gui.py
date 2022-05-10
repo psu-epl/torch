@@ -47,7 +47,7 @@ class TopFrame(wxfb_out.TopFrame):
         self.profile_panel.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.profile = TorchOven.DEFAULT_PROFILE
         self.oven = None
-        p_width, p_height = self.profile_panel.GetSizeTuple()
+        p_width, p_height = self.profile_panel.GetSize()
         max_time = 0
         min_temp = 15
         max_temp = 15
@@ -154,7 +154,7 @@ class TopFrame(wxfb_out.TopFrame):
                 iterator_x += 1
 
     def on_size_profile_panel(self, event):
-        p_width, p_height = self.profile_panel.GetSizeTuple()
+        p_width, p_height = self.profile_panel.GetSize()
         self.view.set_p(p_width, p_height)
         self.view.calc_scales()
 
