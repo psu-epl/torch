@@ -3,6 +3,7 @@ Created on May 20, 2013
 
 @author: User
 '''
+from __future__ import absolute_import
 import csv
 import time
 import wx
@@ -11,6 +12,7 @@ from serial.tools.list_ports import comports as comports
 from struct import error as struct_error
 
 import TorchOven
+from six.moves import range
 
 SIMULATE_TORCH = False # Debug variable - enabling this DISABLES communication with the actual Torch!
 
@@ -340,7 +342,7 @@ class ProfileConfigDialog(wxfb_out.ProfileConfigDialog):
     def __init__(self, parent, profile):
         super(ProfileConfigDialog, self).__init__(parent)
         self.entry_panels = []
-        for i in xrange(len(profile)):
+        for i in range(len(profile)):
             new_entry_panel = ProfileEntryPanel(self, i+1, profile[i], self.on_edit_callback)
             self.profile_sizer.Insert(i, new_entry_panel, 0, wx.ALIGN_CENTER)
             self.entry_panels.append(new_entry_panel)
