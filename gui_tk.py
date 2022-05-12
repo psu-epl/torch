@@ -1,7 +1,6 @@
 
 import argparse
 import time
-import struct
 from itertools import accumulate
 
 import tkinter as tk
@@ -29,9 +28,9 @@ class App(tk.Tk):
         self.profile = TorchOven.DEFAULT_PROFILE
 
         self.measured_temps = []    # Record Measured Temperature Values
-        self.measured_elapsed = []
-        self.last_temp = '...'
-        self.elapsed_seconds = 0
+        self.measured_elapsed = []  # Record Times of measurement
+        self.last_temp = '...'      # Holds last temperature or info/error message
+        self.elapsed_seconds = 0    # Holds count of elapsed seconds
 
         self.geometry("+100+100")
         self.title("Torch - Reflow Oven RN200+ Serial Controller")
@@ -174,7 +173,7 @@ class App(tk.Tk):
         temp = 0
         try:
             temp = self.oven.read_temp()
-        except struct.error as e:
+        except Exception as error:
             self.read_failures += 1
             temp = "ERR"
             print(e)
@@ -189,7 +188,7 @@ class App(tk.Tk):
         
         if elapsed >= self.profile_duration:
             self.action_stop()
-            tk.showinfo(title='Reflow Cycle Complete', message="Reflow cycle has concluded.")
+            tk.messagebox.showinfo(title='Reflow Cycle Complete', message="Reflow cycle has concluded.")
             return
                
         self.update_bar()
