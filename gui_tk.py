@@ -15,6 +15,8 @@ from matplotlib.backends.backend_tkagg import (
 import TorchOven
 
 class App(tk.Tk):
+    PROFILE_LENGTH = 40 # From listening to the Torch's controller - might be changeable, *might not*
+
     def __init__(self):
         super().__init__()
 
@@ -26,6 +28,7 @@ class App(tk.Tk):
     
         self.oven = None
         self.profile = TorchOven.DEFAULT_PROFILE
+        self.profile_fn = "default.prfl"
 
         self.measured_temps = []    # Record Measured Temperature Values
         self.measured_elapsed = []  # Record Times of measurement
@@ -51,6 +54,9 @@ class App(tk.Tk):
 
         menu_file = tk.Menu(menubar, tearoff=False)
         menubar.add_cascade(label="File", menu=menu_file, underline=0)
+        menu_file.add_command(label="Open Profile", underline=0, command=self.profile_load)
+        menu_file.add_command(label="Save Profile as", underline=0, command=self.profile_saveas)
+        menu_file.add_separator()
         menu_file.add_command(label="Exit", underline=1, command=self.destroy)
 
     def init_plot(self):
@@ -100,13 +106,13 @@ class App(tk.Tk):
         self.profile_duration = profile_elapsed[-1]
 
         ticks_duration = list(range(0, profile_elapsed[-1], 60))
-        limits_temp = [0, 260]
 
         self.target.set_ydata(profile_temps)
         self.target.set_xdata(profile_elapsed)
 
         self.axes.set_xticks(ticks_duration)
-        self.axes.set_ylim(limits_temp)
+        self.axes.set_ylim([0, max(260, max(profile_temps))])
+        self.axes.set_xlim([0, self.profile_duration])
 
         self.canvas.draw()
         self.canvas.flush_events()
@@ -192,6 +198,39 @@ class App(tk.Tk):
             return
                
         self.update_bar()
+
+    def profile_edit(self):
+        pass
+    
+    PROFILE_FILETYPES = (('oven profiles', '*.prfl'),('csv files', '*.csv'),('text files', '*.txt'),('All files', '*.*'))
+    def profile_load(self):
+        fn = tk.filedialog.askopenfilename(
+            title="Save Oven Profile",
+            initialdir="profiles/",
+            initialfile=self.profile_fn,
+            filetypes=self.PROFILE_FILETYPES
+        )
+
+        with open(fn) as file:
+            lines = [line.strip() for line in file.readlines()]
+            pairs = [line.split(',') for line in lines if len(line) > 0 and not line.startswith('#')]
+            header, pairs = pairs[0], pairs[1:]
+            if header[0].strip().upper() != 'TEMP' or header[1].strip().upper() != 'TIME':
+                tk.messagebox.showinfo(title='Load Profile Failed', message="Profile does not start with 'TEMP,TIME' header line.")
+                return
+            self.profile = [(int(pair[0]), int(pair[1])) for pair in pairs]
+            self.update_profile()
+        
+    def profile_saveas(self):
+        file = tk.filedialog.asksaveasfile(
+            title="Select Oven Profile",
+            initialdir="profiles/",
+            initialfile=self.profile_fn,
+            filetypes=self.PROFILE_FILETYPES
+        )
+        file.write("TEMP,TIME\n")
+        file.write('\n'.join([str(pair[0]) + ', ' + str(pair[1]) for pair in self.profile]))
+
 
 if __name__ == '__main__':
     app = App()
