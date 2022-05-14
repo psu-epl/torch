@@ -1,22 +1,13 @@
 
 import argparse
 import time
-import re
-from itertools import accumulate
 
 import tkinter as tk
-import matplotlib
-matplotlib.use('TkAgg')
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import (
-    FigureCanvasTkAgg,
-    NavigationToolbar2Tk
-)
+from TkProfileEdit import *
+from TkProfilePlot import *
+from TkGui import *
 
 import TorchOven
-
-from TkProfileEdit import *
-from TkGui import *
 
 class Torch(tk.Tk):
     def __init__(self):
@@ -41,7 +32,7 @@ class Torch(tk.Tk):
         self.title("Torch - Reflow Oven RN200+ Serial Controller")
 
         self.init_menu()
-        self.init_plot()
+        self.profile_plot = TkProfilePlot(self, self.profile)
         self.init_bar()
 
         self.update_profile()
@@ -121,7 +112,7 @@ class Torch(tk.Tk):
         self.button_start = tk.Button(self.bar, font=font_bar, width=6, text="Start", fg="green", command=self.action_start)
     
     def layout(self):
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        self.profile_plot.pack(fill=tk.BOTH, expand=True)
         self.bar.pack(fill=tk.X)
 
         self.label_temp.pack(side=tk.LEFT)
@@ -133,31 +124,11 @@ class Torch(tk.Tk):
     def update_profile(self):
         # Update profile name on menubar
         self.menubar.entryconfig(self.menuindex_profile, label="Profile: " + self.profile.name())
-        
-        profile_temps = [x[0] for x in self.profile.pairs]
-        profile_temps.append(profile_temps[-1])
-        profile_durations = [x[1] for x in self.profile.pairs]
-        profile_elapsed = list(accumulate(profile_durations, initial=0))
-        self.profile_duration = profile_elapsed[-1]
 
-        
-
-        self.target.set_ydata(profile_temps)
-        self.target.set_xdata(profile_elapsed)
-        ticks_duration = list(range(0, profile_elapsed[-1], 60))
-        ticks_labels = list(range(0, (profile_elapsed[-1]//60)+1))
-        self.axes.set_xticks(ticks_duration, labels=ticks_labels)
-        self.axes.set_ylim([0, max(260, max(profile_temps))])
-        self.axes.set_xlim([0, self.profile_duration])
-
-        self.canvas.draw()
-        self.canvas.flush_events()
+        self.profile_plot.update_profile()
     
     def update_measurements(self):
-        self.measured.set_ydata(self.measured_temps)
-        self.measured.set_xdata(self.measured_elapsed)
-        self.canvas.draw()
-        self.canvas.flush_events()
+        self.profile_plot.update_measurements(self.measured_temps, self.measured_elapsed)
 
     def update_bar(self):
         started = self.oven is not None and self.oven.started
@@ -244,7 +215,7 @@ class Torch(tk.Tk):
             self.elapsed_seconds = int(elapsed)
             self.last_temp = temp
         
-        if elapsed >= self.profile_duration:
+        if elapsed >= self.profile.duration:
             self.action_stop()
             tk.messagebox.showinfo(title='Reflow Cycle Complete', message="Reflow cycle has concluded.")
             return

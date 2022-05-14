@@ -20,6 +20,7 @@ class Profile():
         self.text = None         # Text of profile
         self.errors = []         # Array of tuples with error lines.
         self.pairs = []          # Parsed profile as Array of tuples
+        self.duration = None     # Full length of profile
         
 
         with open(filename) as file:
@@ -46,6 +47,7 @@ class Profile():
         self.errors = Profile.Validate(text, first_error_only)
         self.text = text
         self.pairs = Profile.Parse(text)
+        self.duration = sum([pair[1] for pair in self.pairs])
 
         # Todo: only use callback when there are no errors?
         if hasattr(self, "callback") and callable(self.callback):
@@ -113,19 +115,6 @@ class Profile():
     def Parse(text):
         "Parse profile into array of (Temp, Time) tuples."
         return [(int(match.group(1)), int(match.group(2))) for match in Profile.RE_PAIRS.finditer(text)]
-        
-
-
-
-# Todo: Move to separate module?
-def TkCustomFont(font_name='TkTextFont', **kwargs):
-    "Build customized font object based on existing default. Any callable arguments are used to modify the current value."
-    font = tk.font.nametofont('TkTextFont').copy()
-    for option, value in kwargs.items():
-        if callable(value):
-            kwargs[option] = value(font.cget(option))
-    font.configure(**kwargs)
-    return font
 
 class ProfileEdit(tk.Frame):
     LIGHTRED = "#FF7F7F"

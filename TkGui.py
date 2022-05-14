@@ -7,6 +7,15 @@ import tkinter as tk
 
 from serial.tools.list_ports import comports
 
+def TkCustomFont(font_name='TkTextFont', **kwargs):
+    "Build customized font object based on existing default. Any callable arguments are used to modify the current value."
+    font = tk.font.nametofont('TkTextFont').copy()
+    for option, value in kwargs.items():
+        if callable(value):
+            kwargs[option] = value(font.cget(option))
+    font.configure(**kwargs)
+    return font
+
 class TkShowFile(tk.simpledialog.Dialog):
     """Dialog used to show read-only contents of a file."""
     def __init__(self, parent, title, text):
