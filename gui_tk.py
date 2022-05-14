@@ -90,7 +90,7 @@ class App(tk.Tk):
 
         axes.set_title("Oven Temperature")
         axes.set_ylabel("Temperature (°C)")
-        axes.set_xlabel("Elapsed Time (s)")
+        axes.set_xlabel("Elapsed Time (m)")
         axes.grid(visible=True)
         axes.legend(handles=[self.target, self.measured])
         axes.margins(0)
@@ -128,12 +128,13 @@ class App(tk.Tk):
         profile_elapsed = list(accumulate(profile_durations, initial=0))
         self.profile_duration = profile_elapsed[-1]
 
-        ticks_duration = list(range(0, profile_elapsed[-1], 60))
+        
 
         self.target.set_ydata(profile_temps)
         self.target.set_xdata(profile_elapsed)
-
-        self.axes.set_xticks(ticks_duration)
+        ticks_duration = list(range(0, profile_elapsed[-1], 60))
+        ticks_labels = list(range(0, (profile_elapsed[-1]//60)+1))
+        self.axes.set_xticks(ticks_duration, labels=ticks_labels)
         self.axes.set_ylim([0, max(260, max(profile_temps))])
         self.axes.set_xlim([0, self.profile_duration])
 
