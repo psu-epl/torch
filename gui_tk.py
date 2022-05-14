@@ -16,7 +16,7 @@ from matplotlib.backends.backend_tkagg import (
 
 import TorchOven
 
-from ProfileEdit import Profile, DialogProfileEdit, TkCustomFont
+from ProfileEdit import Profile, DialogProfileEdit, TkCustomFont, PickChoice, PickComport
 
 class App(tk.Tk):
     def __init__(self):
@@ -29,6 +29,7 @@ class App(tk.Tk):
         self.args = parser.parse_args()
     
         self.oven = None
+        self.simulate_oven = tk.BooleanVar(self, self.args.sim)
         self.profile = Profile("profiles/default.txt", self.update_profile)
 
         self.measured_temps = []    # Record Measured Temperature Values
@@ -73,6 +74,8 @@ class App(tk.Tk):
         self.bind("<F2>", self.profile_edit)
         self.bind("<Control-o>", self.profile_open)
         self.bind("<Control-s>", self.profile_save_as)
+        menu_file.add_checkbutton(label="Simulate Oven", variable=self.simulate_oven)
+        menu_file.add_separator()
         menu_file.add_command(label="Edit Profile", underline=0, accelerator="F2", command=self.profile_edit)
         menu_file.add_command(label="Open Profile", underline=0, accelerator="Ctrl-o", command=self.profile_open)
         menu_file.add_command(label="Save Profile as", underline=0, accelerator="Ctrl-s", command=self.profile_save_as)
@@ -168,11 +171,25 @@ class App(tk.Tk):
     def action_start(self):
         assert(self.oven is None)
         
-        self.oven = TorchOven.VirtualTorchOven()
-        
-        self.oven.init_sequence()
-        self.oven.send_profile(self.profile.pairs)
-        self.oven.start()
+        try:
+            if self.simulate_oven.get():
+                self.oven = TorchOven.VirtualTorchOven()
+            elif port := PickComport():
+                if __debug__:
+                    print("Trying COM port:", port)
+                self.oven = TorchOven.TorchOven(port)
+            else:
+                return
+            
+            self.oven.init_sequence()
+            self.oven.send_profile(self.profile.pairs)
+            self.oven.start()
+
+        except Exception as e:
+            tk.messagebox.showerror(title='Error Connecting to Oven', message=e)
+            self.oven = None # Clear oven variable to allow restart.
+            return
+                    
 
         self.time_started = time.time()
         self.measured_temps = []
