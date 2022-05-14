@@ -8,18 +8,21 @@ Modernize the gui.
 - [x] Implement matplotlib based display for profile and temperature readings
 - [x] Command line arguments for simulation and polling rate
 - [x] Profile editing, save, load
-- [ ] Select Com port.
-- [ ] Simulate notification/setting.
-- [ ] Add about page, utilized libraries.
-- [ ] Add license page.
+- [x] Select Com port.
+- [x] Add about page, utilized libraries.
+- [x] Add license page.
 - [x] Display Time instead of popup when finished.
 - [x] Display minutes instead of seconds on plot.
 - [x] Display elapsed seconds as time. mm:ss
 - [x] Prevent save/load/edit while oven is started
 - [ ] Check for 40 pair max profile size.
+- [ ] Package python environment and library dependencies
+- [ ] Add documentation for profile format
 
 ## Extras
 
+- [ ] Use Dialog class for profile edit
+- [ ] Simulate notification/setting.
 - [ ] Configuration file
 - [ ] Remember Window position.
 - [ ] Better profile storage?
@@ -27,3 +30,4 @@ Modernize the gui.
     - [ ] Explicit cooldown. Check for reasonable value range. End when oven reaches goal temp instead of waiting the entire time.
     - [ ] Slow Ramp instruction to temperature.
 - [ ] Token based parsing of profile format
+- [ ] Plot in separate file?
