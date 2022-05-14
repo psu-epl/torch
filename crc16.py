@@ -45,7 +45,7 @@ def block_crc16(data):  #unsigned int altCrc(unsigned int *byteBuf, int n_bytes)
       Modbus crc16 is returned. Send the high-order byte first on the wire.'''
     result = 0xffff
     for d in data:      # (i = 0; i < n_bytes; i++)
-        result = (result << 8) ^ Crc16Rem[((result>>8)^ord(d)) & 0xff];
+        result = (result << 8) ^ Crc16Rem[((result>>8)^d) & 0xff];
     return result & 0xffff
 
 

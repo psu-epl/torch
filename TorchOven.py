@@ -57,8 +57,7 @@ DEFAULT_PROFILE = [
 
 class TorchOven(object):
     def __init__(self, port=0):
-        self.sp = serial.Serial(port, baudrate=9600)
-        self.sp.setTimeout(0.5)
+        self.sp = serial.Serial(port, baudrate=9600, timeout=0.5)
         self.fmt = M.Formatter(addr=2)
 
     def cksum_msg(self, cmd):
