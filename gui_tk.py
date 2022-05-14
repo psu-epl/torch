@@ -1,9 +1,11 @@
 
 import argparse
 import time
+import re
 from itertools import accumulate
 
 import tkinter as tk
+from tkinter.scrolledtext import ScrolledText
 import matplotlib
 matplotlib.use('TkAgg')
 from matplotlib.figure import Figure
@@ -14,9 +16,9 @@ from matplotlib.backends.backend_tkagg import (
 
 import TorchOven
 
-class App(tk.Tk):
-    PROFILE_LENGTH = 40 # From listening to the Torch's controller - might be changeable, *might not*
+from ProfileEdit import Profile, DialogProfileEdit, TkCustomFont
 
+class App(tk.Tk):
     def __init__(self):
         super().__init__()
 
@@ -27,8 +29,7 @@ class App(tk.Tk):
         self.args = parser.parse_args()
     
         self.oven = None
-        self.profile = TorchOven.DEFAULT_PROFILE
-        self.profile_fn = "default.prfl"
+        self.profile = Profile("profiles/default.txt", self.update_profile)
 
         self.measured_temps = []    # Record Measured Temperature Values
         self.measured_elapsed = []  # Record Times of measurement
@@ -46,6 +47,21 @@ class App(tk.Tk):
         self.update_measurements()
         self.update_bar()
         self.layout()
+        
+        if self.profile.has_errors():
+            self.profile_edit()
+        
+        self.protocol('WM_DELETE_WINDOW', self.confirm_exit)
+    
+    def confirm_exit(self):
+        if self.profile.has_changes:
+            res = tk.messagebox.askyesnocancel(title="Save Profile", message="Would you like to save changes to profile?")
+            if res == None:
+                return
+            if res == tk.YES:
+                self.profile.save_as()
+                
+        self.withdraw()
 
     def init_menu(self):
         menubar = tk.Menu(self)
@@ -54,10 +70,15 @@ class App(tk.Tk):
 
         menu_file = tk.Menu(menubar, tearoff=False)
         menubar.add_cascade(label="File", menu=menu_file, underline=0)
-        menu_file.add_command(label="Open Profile", underline=0, command=self.profile_load)
-        menu_file.add_command(label="Save Profile as", underline=0, command=self.profile_saveas)
+        self.bind("<F2>", self.profile_edit)
+        self.bind("<Control-o>", self.profile_open)
+        self.bind("<Control-s>", self.profile_save_as)
+        menu_file.add_command(label="Edit Profile", underline=0, accelerator="F2", command=self.profile_edit)
+        menu_file.add_command(label="Open Profile", underline=0, accelerator="Ctrl-o", command=self.profile_open)
+        menu_file.add_command(label="Save Profile as", underline=0, accelerator="Ctrl-s", command=self.profile_save_as)
         menu_file.add_separator()
         menu_file.add_command(label="Exit", underline=1, command=self.destroy)
+        menubar.add_command(label="Profile: ", command=self.profile_edit)
 
     def init_plot(self):
         
@@ -78,16 +99,14 @@ class App(tk.Tk):
     
     def init_bar(self):
         # Create larger font object.
-        bar_font = tk.font.nametofont('TkTextFont').copy()
-        bar_font.configure(size=(bar_font.cget("size") + 6), weight="bold")
+        font_bar = TkCustomFont('TkFixedFont', weight="bold", size=lambda s: s+6)
 
         # Create Lower Toolbar
-        self.bar = tk.Frame()
+        self.bar = tk.Frame(self)
 
-        self.label_temp = tk.Label(self.bar, font=bar_font, text="", width=12)
-        self.label_time = tk.Label(self.bar, font=bar_font, text="", width=12)
-        self.button_start = tk.Button(self.bar, font=bar_font, text="Start", fg="green", command=self.action_start)
-        self.button_stop = tk.Button(self.bar, font=bar_font, text="Stop", fg="red", command=self.action_stop, state=tk.DISABLED)
+        self.label_temp = tk.Label(self.bar, font=font_bar, text="", width=12)
+        self.label_time = tk.Label(self.bar, font=font_bar, text="", width=12)
+        self.button_start = tk.Button(self.bar, font=font_bar, width=6, text="Start", fg="green", command=self.action_start)
     
     def layout(self):
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
@@ -95,13 +114,17 @@ class App(tk.Tk):
 
         self.label_temp.pack(side=tk.LEFT)
         self.label_time.pack(side=tk.LEFT)
-        self.button_stop.pack(side=tk.RIGHT, ipadx=10)
         self.button_start.pack(side=tk.RIGHT, ipadx=10)
+        self.button_start.focus_set()
+
     
     def update_profile(self):
-        profile_temps = [x[0] for x in self.profile]
+        # Update profile name on menubar
+        self.menubar.entryconfig(2, label="Profile: "+self.profile.name())
+        
+        profile_temps = [x[0] for x in self.profile.pairs]
         profile_temps.append(profile_temps[-1])
-        profile_durations = [x[1] for x in self.profile]
+        profile_durations = [x[1] for x in self.profile.pairs]
         profile_elapsed = list(accumulate(profile_durations, initial=0))
         self.profile_duration = profile_elapsed[-1]
 
@@ -126,8 +149,10 @@ class App(tk.Tk):
     def update_bar(self):
         started = self.oven is not None and self.oven.started
 
-        self.button_start.config(state=tk.DISABLED if started else tk.NORMAL)
-        self.button_stop.config(state=tk.DISABLED if not started else tk.NORMAL)
+        if started:
+            self.button_start.config(text="Stop", fg="red", command=self.action_stop)
+        else:
+            self.button_start.config(text="Start", fg="green", command=self.action_start) 
 
         if isinstance(self.last_temp, str):
             self.label_temp.config(text="Temp: {:3s}".format(self.last_temp))
@@ -145,7 +170,7 @@ class App(tk.Tk):
         self.oven = TorchOven.VirtualTorchOven()
         
         self.oven.init_sequence()
-        self.oven.send_profile(self.profile)
+        self.oven.send_profile(self.profile.pairs)
         self.oven.start()
 
         self.time_started = time.time()
@@ -199,38 +224,21 @@ class App(tk.Tk):
                
         self.update_bar()
 
-    def profile_edit(self):
-        pass
+    def profile_edit(self, event=None):
+        if self.oven:
+            return
+        dialog = DialogProfileEdit(self, self.profile)
+        dialog.title("Torch - Edit Profile")
     
-    PROFILE_FILETYPES = (('oven profiles', '*.prfl'),('csv files', '*.csv'),('text files', '*.txt'),('All files', '*.*'))
-    def profile_load(self):
-        fn = tk.filedialog.askopenfilename(
-            title="Save Oven Profile",
-            initialdir="profiles/",
-            initialfile=self.profile_fn,
-            filetypes=self.PROFILE_FILETYPES
-        )
-
-        with open(fn) as file:
-            lines = [line.strip() for line in file.readlines()]
-            pairs = [line.split(',') for line in lines if len(line) > 0 and not line.startswith('#')]
-            header, pairs = pairs[0], pairs[1:]
-            if header[0].strip().upper() != 'TEMP' or header[1].strip().upper() != 'TIME':
-                tk.messagebox.showinfo(title='Load Profile Failed', message="Profile does not start with 'TEMP,TIME' header line.")
-                return
-            self.profile = [(int(pair[0]), int(pair[1])) for pair in pairs]
-            self.update_profile()
+    def profile_open(self, event=None):
+        if self.oven:
+            return
+        self.profile.open()
         
-    def profile_saveas(self):
-        file = tk.filedialog.asksaveasfile(
-            title="Select Oven Profile",
-            initialdir="profiles/",
-            initialfile=self.profile_fn,
-            filetypes=self.PROFILE_FILETYPES
-        )
-        file.write("TEMP,TIME\n")
-        file.write('\n'.join([str(pair[0]) + ', ' + str(pair[1]) for pair in self.profile]))
-
+    def profile_save_as(self, event=None):
+        if self.oven:
+            return
+        self.profile.save_as()
 
 if __name__ == '__main__':
     app = App()
