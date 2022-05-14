@@ -159,7 +159,7 @@ class App(tk.Tk):
         else:
             self.label_temp.config(text="Temp: {:3d} °C".format(self.last_temp))
 
-        self.label_time.config(text="Elapsed: {} s".format(self.elapsed_seconds))
+        self.label_time.config(text="Elapsed: {:02}:{:02}".format(self.elapsed_seconds//60, self.elapsed_seconds%60))
 
     def timer_start(self):
         self.timer = self.after(self.args.rate, self.action_read)
