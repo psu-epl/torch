@@ -15,10 +15,10 @@ from matplotlib.backends.backend_tkagg import (
 
 import TorchOven
 
-from ProfileEdit import Profile, DialogProfileEdit, TkCustomFont, PickChoice, PickComport
+from TkProfileEdit import *
 from TkGui import *
 
-class App(tk.Tk):
+class Torch(tk.Tk):
     def __init__(self):
         super().__init__()
 
@@ -276,5 +276,5 @@ class App(tk.Tk):
             license = TkShowFile(self, title="Torch - About", text=file.read())
 
 if __name__ == '__main__':
-    app = App()
+    app = Torch()
     app.mainloop()

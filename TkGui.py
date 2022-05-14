@@ -5,7 +5,10 @@ import tkinter.font
 import tkinter.scrolledtext
 import tkinter as tk
 
+from serial.tools.list_ports import comports
+
 class TkShowFile(tk.simpledialog.Dialog):
+    """Dialog used to show read-only contents of a file."""
     def __init__(self, parent, title, text):
         self.text = text
         super().__init__(parent, title)
@@ -20,3 +23,53 @@ class TkShowFile(tk.simpledialog.Dialog):
     
     def buttonbox(self):
         pass
+
+class PickChoice(tk.simpledialog.Dialog):
+    """Dialog used to pick from a list of choices.
+    
+    After selection result member has 1-based index of choice."""
+    def __init__(self, parent, title, message, choices):
+        self.message = message
+        self.choices = choices
+        self.choice = tk.IntVar()
+        super().__init__(parent, title)
+
+    def body(self, frame):
+        tk.Label(frame, text=self.message).pack(fill=tk.X)
+        for i, choice in enumerate(self.choices):
+            text = choice if isinstance(choice, str) else choice[0]
+            tk.Radiobutton(frame, text=text, value=i+1, variable=self.choice, justify=tk.LEFT).pack(fill=tk.X)
+            #tk.Button(frame, text="Pick").grid(row=i, column=0)
+            #tk.Label(frame, text=text).grid(row=i, column=1)
+        return frame
+    
+    def buttonbox(self):
+        tk.Button(self, text='Cancel', width=5, command=self.cancel_pressed)\
+            .pack(side=tk.RIGHT, padx=2, pady=4)
+        tk.Button(self, text='OK', width=5, command=self.ok_pressed)\
+            .pack(side=tk.RIGHT, padx=2, pady=4)
+        self.bind("<Return>", lambda event: self.ok_pressed())
+        self.bind("<Escape>", lambda event: self.cancel_pressed())
+    
+    def ok_pressed(self):
+        self.result = self.choice.get()
+        if self.result == 0:
+            self.result = None
+        self.destroy()
+
+    def cancel_pressed(self):
+        self.destroy()
+
+def PickComport():
+    ports = comports()
+    if not ports:
+        tk.messagebox.showinfo(title='Comport Selection', message="No comports detected.")
+        return None
+    elif len(ports) == 1:
+        return ports[0][0]
+    
+    choice = PickChoice(self, title="Select COM port", message="Select comport for connection to oven.", choices=ports)
+    if choice:    
+        return ports[choice.result][0]
+    else:
+        return None
