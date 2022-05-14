@@ -9,22 +9,74 @@ import tkinter.font
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 
+from TkGui import *
 
+DEFAULT_PROFILE = """
+# Profile for Reflow Oven
+# Can include up to 40 pairs of values.
+# Comments allowed at the end of lines
+
+Temp,Time # Header required before values. 
+
+# Pairs of values indicating target temperature and duration
+70,  12
+90,  20
+110,   8
+120,   5
+135,   5
+140,   5
+150,   8
+155,  10
+158,  10
+159,  10
+162,  10
+163,  10
+164,  10
+165,  10
+166,  10
+167,  10
+168,  10
+169,  10
+170,  10
+171,   3
+172,   1
+173,   1
+174,   3
+175,   5
+190,  20
+200,   5
+210,  10
+220,  15
+230,  15
+235,  20
+240,  25
+242,  30
+243,  30
+245,  10
+250,   8
+140,  10 # Start of cooldown
+90,  30
+40,  30
+10,  30
+1, 150
+"""
 
 class Profile():
     MAX_LENGTH = 40 # From listening to the Torch's controller - might be changeable, *might not*
-    DEFAULT_PATH = "profiles/default.txt"
+    DEFAULT_PATH = "profiles/default.prfl"
 
-    def __init__(self, filename, callback=None):
+    def __init__(self, filename=None, callback=None):
         self.filename = filename or self.DEFAULT_PATH
         self.text = None         # Text of profile
         self.errors = []         # Array of tuples with error lines.
         self.pairs = []          # Parsed profile as Array of tuples
         self.duration = None     # Full length of profile
         
-
-        with open(filename) as file:
-            self.update(file.read())
+        if filename:
+            with open(filename) as file:
+                self.update(file.read())
+        else:
+            self.update(DEFAULT_PROFILE)
         
         # Note: below must be set after first update.
         self.has_changes = False # Has changes needing saving to disk.

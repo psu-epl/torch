@@ -21,7 +21,7 @@ class Torch(tk.Tk):
     
         self.oven = None
         self.simulate_oven = tk.BooleanVar(self, self.args.sim)
-        self.profile = Profile("profiles/default.txt", self.update_profile)
+        self.profile = Profile(callback=self.update_profile)
 
         self.measured_temps = []    # Record Measured Temperature Values
         self.measured_elapsed = []  # Record Times of measurement
