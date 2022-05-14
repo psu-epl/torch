@@ -160,16 +160,17 @@ class Torch(tk.Tk):
                 self.oven = TorchOven.TorchOven(port)
             else:
                 return
+        except Exception as e:
+            tk.messagebox.showerror(title='Error connecting to Oven', message=e)
             
+        try:
             self.oven.init_sequence()
             self.oven.send_profile(self.profile.pairs)
             self.oven.start()
-
         except Exception as e:
-            tk.messagebox.showerror(title='Error Connecting to Oven', message=e)
+            tk.messagebox.showerror(title='Error communicating with oven', message=e)
             self.oven = None # Clear oven variable to allow restart.
             return
-                    
 
         self.time_started = time.time()
         self.measured_temps = []

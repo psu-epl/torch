@@ -18,6 +18,7 @@ Modernize the gui.
 - [ ] Check for 40 pair max profile size.
 - [ ] Package python environment and library dependencies
 - [ ] Add documentation for profile format
+- [ ] Check Oven Serial Communication.
 
 ## Extras
 
