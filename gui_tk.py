@@ -5,7 +5,6 @@ import re
 from itertools import accumulate
 
 import tkinter as tk
-from tkinter.scrolledtext import ScrolledText
 import matplotlib
 matplotlib.use('TkAgg')
 from matplotlib.figure import Figure
@@ -17,6 +16,7 @@ from matplotlib.backends.backend_tkagg import (
 import TorchOven
 
 from ProfileEdit import Profile, DialogProfileEdit, TkCustomFont, PickChoice, PickComport
+from TkGui import *
 
 class App(tk.Tk):
     def __init__(self):
@@ -71,9 +71,6 @@ class App(tk.Tk):
 
         menu_file = tk.Menu(menubar, tearoff=False)
         menubar.add_cascade(label="File", menu=menu_file, underline=0)
-        self.bind("<F2>", self.profile_edit)
-        self.bind("<Control-o>", self.profile_open)
-        self.bind("<Control-s>", self.profile_save_as)
         menu_file.add_checkbutton(label="Simulate Oven", variable=self.simulate_oven)
         menu_file.add_separator()
         menu_file.add_command(label="Edit Profile", underline=0, accelerator="F2", command=self.profile_edit)
@@ -81,7 +78,19 @@ class App(tk.Tk):
         menu_file.add_command(label="Save Profile as", underline=0, accelerator="Ctrl-s", command=self.profile_save_as)
         menu_file.add_separator()
         menu_file.add_command(label="Exit", underline=1, command=self.destroy)
-        menubar.add_command(label="Profile: ", command=self.profile_edit)
+        
+        menu_help = tk.Menu(menubar, tearoff=False)
+        menubar.add_cascade(label="Help", menu=menu_help, underline=0)
+        menu_help.add_command(label="License", underline=0, command=self.show_license)
+        menu_help.add_command(label="About", underline=0, command=self.show_about)
+
+        menubar.add_separator()
+        menubar.add_command(label="Profile:", command=self.profile_edit)
+        self.menuindex_profile = menubar.index("Profile:")
+        
+        self.bind("<F2>", self.profile_edit)
+        self.bind("<Control-o>", self.profile_open)
+        self.bind("<Control-s>", self.profile_save_as)
 
     def init_plot(self):
         
@@ -123,7 +132,7 @@ class App(tk.Tk):
     
     def update_profile(self):
         # Update profile name on menubar
-        self.menubar.entryconfig(2, label="Profile: "+self.profile.name())
+        self.menubar.entryconfig(self.menuindex_profile, label="Profile: " + self.profile.name())
         
         profile_temps = [x[0] for x in self.profile.pairs]
         profile_temps.append(profile_temps[-1])
@@ -257,6 +266,14 @@ class App(tk.Tk):
         if self.oven:
             return
         self.profile.save_as()
+    
+    def show_license(self):
+        with open('LICENSE') as file:
+            license = TkShowFile(self, title="Torch - License", text=file.read())
+    
+    def show_about(self):
+        with open('ABOUT') as file:
+            license = TkShowFile(self, title="Torch - About", text=file.read())
 
 if __name__ == '__main__':
     app = App()
