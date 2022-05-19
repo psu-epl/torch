@@ -1,0 +1,14 @@
+
+
+
+rm -rf build *.egg-info
+python -m build -nw
+
+
+conda create -n torch-install python=3.8
+conda activate torch-install
+
+
+pip install dist/Torch-0.1.0.tar.gz
+pip install dist\Torch-0.1.0-py3-none-any.whl
+pip install --force-reinstall dist\Torch-0.1.0-py3-none-any.whl

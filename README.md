@@ -4,6 +4,16 @@ A replacement program for the Torch T200N+ reflow oven for the EPL
 
 <https://github.com/psu-epl/psu-epl.github.com/wiki/Reflow-Oven-SOP>
 
+## Run without Installation
+
+```sh
+git clone https://github.com/psu-epl/torch.git
+cd torch
+pip install -r requirements.txt
+
+# Run With
+python run.py
+```
 
 ## License
 

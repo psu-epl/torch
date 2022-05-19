@@ -3,11 +3,12 @@ import argparse
 import time
 
 import tkinter as tk
-from TkProfileEdit import *
-from TkProfilePlot import *
-from TkGui import *
 
-import TorchOven
+from .TkProfileEdit import *
+from .TkProfilePlot import *
+from .TkGui import *
+
+from oven import TorchOven
 
 class Torch(tk.Tk):
     def __init__(self):
@@ -52,8 +53,7 @@ class Torch(tk.Tk):
                 return
             if res == tk.YES:
                 self.profile.save_as()
-                
-        self.withdraw()
+        self.quit()
 
     def init_menu(self):
         menubar = tk.Menu(self)
@@ -168,7 +168,7 @@ class Torch(tk.Tk):
             self.oven.send_profile(self.profile.pairs)
             self.oven.start()
         except Exception as e:
-            tk.messagebox.showerror(title='Error communicating with oven', message=e)
+            tk.messagebox.showerror(title='Error communicating with oven', message="Failure in serial read")
             self.oven = None # Clear oven variable to allow restart.
             return
 
@@ -247,6 +247,9 @@ class Torch(tk.Tk):
         with open('ABOUT') as file:
             license = TkShowFile(self, title="Torch - About", text=file.read())
 
-if __name__ == '__main__':
+def main():
     app = Torch()
     app.mainloop()
+
+if __name__ == '__main__':
+    main()

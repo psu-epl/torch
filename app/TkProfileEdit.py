@@ -5,11 +5,10 @@ import re
 
 import tkinter.filedialog
 import tkinter.messagebox
-import tkinter.font
+import tkinter.scrolledtext
 import tkinter as tk
-from tkinter.scrolledtext import ScrolledText
 
-from TkGui import *
+from .TkGui import *
 
 DEFAULT_PROFILE = """
 # Profile for Reflow Oven
@@ -181,7 +180,7 @@ class ProfileEdit(tk.Frame):
         container.bind("<Control-Shift-s>", self.save_as)
         container.bind("<Control-s>", self.update)
 
-        self.text_profile = ScrolledText(self, undo=True)
+        self.text_profile = tk.scrolledtext.ScrolledText(self, undo=True)
         self.text_profile.pack(fill=tk.BOTH, expand=True)
         self.text_profile.focus_set()
         frame_toolbar = tk.Frame(self)

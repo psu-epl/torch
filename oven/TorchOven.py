@@ -6,8 +6,8 @@ Created on Mar 1, 2013
 from __future__ import absolute_import
 from __future__ import print_function
 import serial
-import modbus as M
-from crc16 import block_crc16 as modbus_crc16
+from . import modbus as M
+from .crc16 import block_crc16 as modbus_crc16
 import binascii
 from struct import pack, unpack, error as struct_error
 import time

@@ -19,12 +19,21 @@ Modernize the gui.
 - [ ] Package python environment and library dependencies
 - [ ] Add documentation for profile format
 - [ ] Check Oven Serial Communication.
+- [ ] Thread oven communications
+- [ ] Resolve
+    - [ ] Unpack requires buffer of 4 bytes
 
 ## Extras
 
+- [ ] Use importlib_resources
+    - Inlcude ABOUT, LICENSE in binary distribution
+    - Include Profiles
+    - <https://importlib-resources.readthedocs.io/en/latest/using.html>
 - [ ] Use Dialog class for profile edit
 - [ ] Simulate notification/setting.
-- [ ] Configuration file
+- [ ] Configuration File
+    - [ ] Load profile at start
+    - [ ] Remember window position
 - [ ] Remember Window position.
 - [ ] Better profile storage?
 - [ ] Provide additional profile features

@@ -1,0 +1,40 @@
+Temp,Time
+
+# Soak at 100 deg C for 4 minutes - includes time for temp rampup.
+
+100,240
+
+# Ramp up to 150 ASAP and hold for 1 minute
+
+110,10
+120,10
+130,10
+140,10
+150,60
+
+# Ramp up to soldering temperature
+
+160,10
+170,10
+180,10
+190,10
+200,10
+210,10
+
+# Hold for 30 seconds
+
+225,30
+
+# Cool down all the things!!11!
+
+25,500
+
+
+
+
+
+
+
+
+
+
