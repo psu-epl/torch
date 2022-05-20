@@ -1,6 +1,7 @@
 
 import argparse
 import time
+from struct import error as StructError
 
 import tkinter as tk
 
@@ -161,15 +162,25 @@ class Torch(tk.Tk):
             else:
                 return
         except Exception as e:
+            if __debug__:
+                print(*sys.exc_info())
             tk.messagebox.showerror(title='Error connecting to Oven', message=e)
             
         try:
             self.oven.init_sequence()
             self.oven.send_profile(self.profile.pairs)
             self.oven.start()
+        except StructError:
+            if __debug__:
+                print(*sys.exc_info())
+            tk.messagebox.showerror(title='Error communicating with oven', message="Read unexpected bytes from COM port. Perhaps try a different port or check if the oven is on.")
         except Exception as e:
-            tk.messagebox.showerror(title='Error communicating with oven', message="Failure in serial read")
+            if __debug__:
+                print(*sys.exc_info())
+            self.oven.stop() # Try to stop the oven just to be safe.
             self.oven = None # Clear oven variable to allow restart.
+
+            tk.messagebox.showerror(title='Error communicating with oven', message=e)
             return
 
         self.time_started = time.time()
@@ -203,10 +214,11 @@ class Torch(tk.Tk):
         temp = 0
         try:
             temp = self.oven.read_temp()
-        except Exception as error:
+        except Exception:
+            if __debug__:
+                print(*sys.exc_info())
             self.read_failures += 1
             temp = "ERR"
-            print(e)
         else:
             self.read_failures = 0 # Reset failures
             self.measured_elapsed.append(elapsed)
