@@ -34,7 +34,7 @@ class Torch(tk.Tk):
 
         self.geometry("+100+100")
         self.title("Torch - Reflow Oven RN200+ Serial Controller")
-        self.iconbitmap(ICON_PATH)
+        self.iconbitmap(self.ICON_PATH)
 
         self.init_menu()
         self.profile_plot = TkProfilePlot(self, self.profile)
@@ -243,7 +243,7 @@ class Torch(tk.Tk):
             return
         dialog = DialogProfileEdit(self, self.profile)
         dialog.title("Torch - Edit Profile")
-        dialog.iconbitmap(ICON_PATH)
+        dialog.iconbitmap(self.ICON_PATH)
     
     def profile_open(self, event=None):
         if self.oven:
@@ -258,12 +258,12 @@ class Torch(tk.Tk):
     def show_license(self):
         with open('LICENSE') as file:
             license = TkShowText(self, title="Torch - License", text=file.read())
-            license.iconbitmap(ICON_PATH)
+            license.iconbitmap(self.ICON_PATH)
     
     def show_about(self):
         with open('ABOUT') as file:
             about = TkShowText(self, title="Torch - About", text=file.read())
-            about.iconbitmap(ICON_PATH)
+            about.iconbitmap(self.ICON_PATH)
 
 def main():
     app = Torch()
