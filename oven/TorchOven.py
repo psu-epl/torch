@@ -16,6 +16,7 @@ class TorchOven(object):
     def __init__(self, port=0):
         self.sp = serial.Serial(port, baudrate=9600, timeout=0.5)
         self.fmt = M.Formatter(addr=2)
+        self.started = False
 
     def cksum_msg(self, cmd):
         return cmd+pack('>H', modbus_crc16(cmd))
@@ -61,9 +62,11 @@ class TorchOven(object):
         return self.read_regs(0x2000, 80)
 
     def start(self):
+        self.started = True
         self.write_reg(0x1018, 1)  
 
     def stop(self):
+        self.started = False
         self.write_reg(0x1018, 0)  
 
     def read_temp(self):
