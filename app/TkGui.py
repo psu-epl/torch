@@ -79,6 +79,6 @@ def PickComport():
     
     choice = PickChoice(self, title="Select COM port", message="Select comport for connection to oven.", choices=ports)
     if choice:    
-        return ports[choice.result][0]
+        return ports[choice.result-1][0]
     else:
         return None
