@@ -154,7 +154,7 @@ class Torch(tk.Tk):
         try:
             if self.simulate_oven.get():
                 self.oven = TorchOven.VirtualTorchOven()
-            elif port := PickComport():
+            elif port := PickComport(self):
                 if __debug__:
                     print("Trying COM port:", port)
                 self.oven = TorchOven.TorchOven(port)

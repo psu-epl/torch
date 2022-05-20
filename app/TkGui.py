@@ -69,7 +69,7 @@ class PickChoice(tk.simpledialog.Dialog):
     def cancel_pressed(self):
         self.destroy()
 
-def PickComport():
+def PickComport(parent):
     ports = comports()
     if not ports:
         tk.messagebox.showinfo(title='Comport Selection', message="No comports detected.")
@@ -77,7 +77,7 @@ def PickComport():
     elif len(ports) == 1:
         return ports[0][0]
     
-    choice = PickChoice(self, title="Select COM port", message="Select comport for connection to oven.", choices=ports)
+    choice = PickChoice(parent, title="Select COM port", message="Select comport for connection to oven.", choices=ports)
     if choice:    
         return ports[choice.result-1][0]
     else:
