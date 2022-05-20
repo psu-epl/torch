@@ -16,7 +16,7 @@ def TkCustomFont(font_name='TkTextFont', **kwargs):
     font.configure(**kwargs)
     return font
 
-class TkShowFile(tk.simpledialog.Dialog):
+class TkShowText(tk.simpledialog.Dialog, title="" text=""):
     """Dialog used to show read-only contents of a file."""
     def __init__(self, parent, title, text):
         self.text = text
