@@ -23,6 +23,10 @@ Modernize the gui.
 - [ ] Resolve
     - [ ] Unpack requires buffer of 4 bytes
 
+## Bugs
+- [ ] Save as is incorrect.
+- [ ] Profile length of 1 does not set labels properly. Possibly also too short of a profile.
+
 ## Extras
 
 - [ ] Use importlib_resources

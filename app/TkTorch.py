@@ -134,6 +134,10 @@ class Torch(tk.Tk):
     def update_measurements(self):
         self.profile_plot.update_measurements(self.measured_temps, self.measured_elapsed)
 
+    def show_status(self, status):
+        self.label_temp.config(text="Temp: {:3s}".format(status))
+        self.label_time.config(text="")
+
     def update_bar(self):
         started = self.oven is not None and self.oven.started
 
@@ -168,15 +172,21 @@ class Torch(tk.Tk):
             if __debug__:
                 print(*sys.exc_info())
             tk.messagebox.showerror(title='Error connecting to Oven', message=e)
+            return
             
         try:
+            self.show_status("Oven Init...")
             self.oven.init_sequence()
+            self.show_status("Sending Profile...")
             self.oven.send_profile(self.profile.pairs)
+            self.show_status("Oven Start...")
             self.oven.start()
         except StructError:
             if __debug__:
                 print(*sys.exc_info())
             tk.messagebox.showerror(title='Error communicating with oven', message="Read unexpected bytes from COM port. Perhaps try a different port or check if the oven is on.")
+            self.update_bar()
+            return
         except Exception as e:
             if __debug__:
                 print(*sys.exc_info())
@@ -184,7 +194,9 @@ class Torch(tk.Tk):
             self.oven = None # Clear oven variable to allow restart.
 
             tk.messagebox.showerror(title='Error communicating with oven', message=e)
+            self.update_bar()
             return
+
 
         self.time_started = time.time()
         self.measured_temps = []
@@ -224,9 +236,10 @@ class Torch(tk.Tk):
             temp = "ERR"
         else:
             self.read_failures = 0 # Reset failures
+            self.elapsed_seconds = int(elapsed)
+            self.last_temp = temp
             self.measured_elapsed.append(elapsed)
-            self.measured_temps.append(temp)
-            self.update_measurements()
+            self.measured_temps.append(temp)            
         finally:
             self.elapsed_seconds = int(elapsed)
             self.last_temp = temp

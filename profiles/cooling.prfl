@@ -1,0 +1,10 @@
+
+# Profile for Reflow Oven
+# Can include up to 40 pairs of values.
+# Comments allowed at the end of lines
+
+Temp,Time # Header required before values. 
+
+# Pairs of values indicating target temperature and duration
+70,  12
+90,  20

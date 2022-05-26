@@ -140,6 +140,7 @@ class Profile():
         if file is not None:
             file.write(self.text)
             file.close()
+            self.filename = file.name
         
         return file
 

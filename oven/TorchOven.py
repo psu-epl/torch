@@ -77,10 +77,13 @@ class VirtualTorchOven(object):
         self.started = False
 
     def init_sequence(self):
+        time.sleep(0.1)
         pass
 
     def send_profile(self, profile):
         self.profile = profile
+        for line in profile:
+            time.sleep(0.01)
 
     def read_profile(self):
         return self.profile
