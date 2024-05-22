@@ -6,5 +6,21 @@
 Temp,Time # Header required before values. 
 
 # Pairs of values indicating target temperature and duration
-70,  12
-90,  20
+70,  60
+80,  60
+90,  60
+100, 60
+110, 60	
+120, 60	
+130, 60
+135, 60
+138, 60
+141, 60 
+142, 60
+143, 60
+144, 60
+145, 3600
+
+10,  100 # Start of cooldown
+
+

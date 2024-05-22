@@ -11,8 +11,10 @@ from .TkGui import *
 
 from oven import TorchOven
 
+from PIL import Image, ImageTk
+
 class Torch(tk.Tk):
-    ICON_PATH = "Torch.ico"
+    ICON_PATH = "Torch.png"
 
     def __init__(self):
         super().__init__()
@@ -34,7 +36,10 @@ class Torch(tk.Tk):
 
         self.geometry("+100+100")
         self.title("Torch - Reflow Oven RN200+ Serial Controller")
-        self.iconbitmap(self.ICON_PATH)
+        im = Image.open(self.ICON_PATH)
+        photo = ImageTk.PhotoImage(im)
+        self.wm_iconphoto(True, photo)
+        # self.iconphoto()
 
         self.init_menu()
         self.profile_plot = TkProfilePlot(self, self.profile)
@@ -132,6 +137,7 @@ class Torch(tk.Tk):
         self.profile_plot.update_profile()
     
     def update_measurements(self):
+        print("update_measurements print")
         self.profile_plot.update_measurements(self.measured_temps, self.measured_elapsed)
 
     def show_status(self, status):
@@ -184,6 +190,7 @@ class Torch(tk.Tk):
         except StructError:
             if __debug__:
                 print(*sys.exc_info())
+            self.oven = None # Clear oven variable to allow restart.
             tk.messagebox.showerror(title='Error communicating with oven', message="Read unexpected bytes from COM port. Perhaps try a different port or check if the oven is on.")
             self.update_bar()
             return
@@ -239,7 +246,7 @@ class Torch(tk.Tk):
             self.elapsed_seconds = int(elapsed)
             self.last_temp = temp
             self.measured_elapsed.append(elapsed)
-            self.measured_temps.append(temp)            
+            self.measured_temps.append(temp)        
         finally:
             self.elapsed_seconds = int(elapsed)
             self.last_temp = temp
@@ -250,6 +257,7 @@ class Torch(tk.Tk):
             return
                
         self.update_bar()
+        self.update_measurements()
 
     def profile_edit(self, event=None):
         if self.oven:

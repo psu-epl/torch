@@ -58,4 +58,5 @@ class TkProfilePlot(tk.Frame):
         self.measured.set_xdata(elapsed)
         self.canvas.draw()
         self.canvas.flush_events()
+        print("Draw")
 

@@ -26,6 +26,8 @@ Modernize the gui.
 ## Bugs
 - [ ] Save as is incorrect.
 - [ ] Profile length of 1 does not set labels properly. Possibly also too short of a profile.
+- [ ] Stop oven on exit.
+- [ ] Temperature measurements no longer plotting...
 
 ## Extras
 
