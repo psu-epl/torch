@@ -75,7 +75,8 @@ class Torch(tk.Tk):
         menu_file.add_separator()
         menu_file.add_command(label="Edit Profile", underline=0, accelerator="F2", command=self.profile_edit)
         menu_file.add_command(label="Open Profile", underline=0, accelerator="Ctrl-o", command=self.profile_open)
-        menu_file.add_command(label="Save Profile as", underline=0, accelerator="Ctrl-s", command=self.profile_save_as)
+        menu_file.add_command(label="Save Profile", underline=0, accelerator="Ctrl-s", command=self.profile_save)
+        menu_file.add_command(label="Save Profile as", underline=0, accelerator="Ctrl-Shift-s", command=self.profile_save_as)
         menu_file.add_separator()
         menu_file.add_command(label="Exit", underline=1, command=self.destroy)
         
@@ -90,7 +91,8 @@ class Torch(tk.Tk):
         
         self.bind("<F2>", self.profile_edit)
         self.bind("<Control-o>", self.profile_open)
-        self.bind("<Control-s>", self.profile_save_as)
+        self.bind("<Control-s>", self.profile_save)
+        self.bind("<Control-Shift-S>", self.profile_save_as)
 
     def init_plot(self):
         
@@ -163,7 +165,8 @@ class Torch(tk.Tk):
 
     def action_start(self):
         assert(self.oven is None)
-        
+        self.label_time.config(text="Initializing")
+
         try:
             if self.simulate_oven.get():
                 self.oven = TorchOven.VirtualTorchOven()
@@ -172,6 +175,8 @@ class Torch(tk.Tk):
                     print("Trying COM port:", port)
                 self.oven = TorchOven.TorchOven(port)
             else:
+                print("No port found")
+                tk.messagebox.showerror(title='Oven Connectoin Error', message="No oven port selected")
                 return
         except Exception as e:
             if __debug__:
@@ -263,12 +268,20 @@ class Torch(tk.Tk):
             return
         dialog = DialogProfileEdit(self, self.profile)
         dialog.title("Torch - Edit Profile")
-        dialog.iconbitmap(self.ICON_PATH)
+        im = Image.open(self.ICON_PATH)
+        photo = ImageTk.PhotoImage(im)
+        dialog.wm_iconphoto(True, photo)
+        # dialog.iconbitmap(self.ICON_PATH)
     
     def profile_open(self, event=None):
         if self.oven:
             return
         self.profile.open()
+
+    def profile_save(self, event=None):
+        if self.oven:
+            return
+        self.profile.save()
         
     def profile_save_as(self, event=None):
         if self.oven:

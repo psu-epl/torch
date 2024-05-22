@@ -52,7 +52,8 @@ Temp,Time # Header required before values.
 
 #! Phase: Cooling
 # Cool slowly until 100C in several steps
-100, 480
+0, 480
 
 # Cool all the way
 0, 120
+

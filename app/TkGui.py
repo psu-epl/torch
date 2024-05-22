@@ -83,11 +83,10 @@ def PickComport(parent):
         if not (port.name.startswith("ttyS") and port.name[4].isdigit()):
             shownPorts.append(port)
 
-    choice = 0
-    if len(shownPorts) > 1:
+    if len(shownPorts) == 1:
+        return shownPorts[0][0]
+    elif len(shownPorts) > 1:
         choice = PickChoice(parent, title="Select COM port", message="Select comport for connection to oven.", choices=shownPorts)
-    
-    if choice:    
-        return shownPorts[choice.result-1][0]
-    else:
-        return None
+        if choice:    
+            return shownPorts[choice.result-1][0]
+    return None

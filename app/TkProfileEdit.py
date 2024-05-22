@@ -63,17 +63,27 @@ Temp,Time # Header required before values.
 class Profile():
     MAX_LENGTH = 40 # From listening to the Torch's controller - might be changeable, *might not*
     DEFAULT_PATH = "profiles/default.prfl"
+    LAST_FILE_PATH = "lastprofile.txt"
 
     def __init__(self, filename=None, callback=None):
-        self.filename = filename or self.DEFAULT_PATH
         self.text = None         # Text of profile
         self.errors = []         # Array of tuples with error lines.
         self.pairs = []          # Parsed profile as Array of tuples
         self.duration = None     # Full length of profile
         
+        if filename is None:
+            if os.path.exists(self.LAST_FILE_PATH):
+                with open(self.LAST_FILE_PATH) as f:
+                    filename = f.readline()
+                    print("Reading file " + filename)
+            if filename is None or len(filename) == 0:
+                filename = self.DEFAULT_PATH
+                print("No previous file found, loading default")
         if filename:
-            with open(filename) as file:
-                self.update(file.read())
+            if os.path.exists(filename):
+                self.filename = filename
+                with open(filename) as file:
+                    self.update(file.read())
         else:
             self.update(DEFAULT_PROFILE)
         
@@ -125,6 +135,8 @@ class Profile():
             self.update(file.read())
             self.has_changes = False # Clear dirty flag after load.
             file.close()
+            with open(self.LAST_FILE_PATH, "w") as f:
+                f.write(self.filename)
         
         return file
 
@@ -136,13 +148,17 @@ class Profile():
             initialfile=basename,
             filetypes=Profile.PROFILE_FILETYPES
         )
-
-        if file is not None:
-            file.write(self.text)
-            file.close()
-            self.filename = file.name
-        
+        self.save(file.name)
+        file.close()
         return file
+
+    def save(self, filename=None):
+        filename = filename or self.filename
+        if os.path.exists(filename):
+            with open(filename, "w") as file:
+                file.write(self.text)
+            with open(self.LAST_FILE_PATH, "w") as f:
+                f.write(self.filename)
 
     RE_COMMENT   = re.compile("^\s*(?:#.*)?$")
     RE_HEADER    = re.compile("^\s*TEMP\s*,\s*TIME\s*(?:#.*)?$", re.IGNORECASE)
@@ -255,6 +271,10 @@ class ProfileEdit(tk.Frame):
             self.validate(text)
         else:
             self.status_error("Canceled.")
+
+    def save(self, event=None):
+        self.profile.update(self.text())
+        self.profile.save()
 
     def save_as(self, event=None):
         self.profile.update(self.text())

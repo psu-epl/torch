@@ -37,14 +37,16 @@ class TorchOven(object):
           return raw serial reply, including crc16 as last two bytes'''
         time.sleep(0.06)
         msg = self.cksum_msg(self.fmt.read_holding_regs(addr, count))
-        print('reading reg %.04x with cmd %s' % (addr, binascii.b2a_hex(msg)))
+        print('reading reg %.04x with cmd %s' % (addr, binascii.b2a_hex(msg)), end="=")
         self.sp.flushInput()
         self.sp.write(msg)
         resp = self.sp.read(count*2 + 5)  # response has 2 byte header + 2 byte crc16, and 2 bytes per register
         rslt = unpack('>'+('H'*count), resp[3:-2])
+        print("0x ", end='')
         for v in rslt:
             print(f"{v:02X}", end=' ')
-        return
+        print("")
+        return rslt
 
     def close(self):
         self.sp.close()
@@ -138,7 +140,7 @@ if __name__=='__main__':
             start = time.time()
             while (time.time() - start) < 30:
                 try:
-                    print(oven.read_temp())
+                    print("Temp: " + oven.read_temp())
                 except struct_error as E:
                     print('Exception reading temp', str(E))
         finally:
