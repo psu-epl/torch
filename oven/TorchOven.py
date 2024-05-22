@@ -13,7 +13,7 @@ from struct import pack, unpack, error as struct_error
 import time
 
 # Register definitions
-import oven.regs
+import oven.regs as regs
 
 class TorchOven(object):
     def __init__(self, port=0):

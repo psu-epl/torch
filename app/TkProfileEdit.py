@@ -109,7 +109,7 @@ class Profile():
             for error, line in self.errors:
                 print("  line {} Error: {}".format(line, error), file=sys.stderr)
 
-    PROFILE_FILETYPES = (('oven profiles', '*.prfl;*.csv;*.txt'),('All files', '*.*'))
+    PROFILE_FILETYPES = (('oven profiles', '*.prfl *.csv'),('All files', '*.*'))
 
     def open(self):
         directory, basename = os.path.split(self.filename)
