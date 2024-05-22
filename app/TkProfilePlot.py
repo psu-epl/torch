@@ -40,8 +40,6 @@ class TkProfilePlot(tk.Frame):
         profile_durations = [x[1] for x in self.profile.pairs]
         profile_elapsed = list(accumulate(profile_durations, initial=0))
 
-        
-
         self.target.set_ydata(profile_temps)
         self.target.set_xdata(profile_elapsed)
         ticks_duration = list(range(0, profile_elapsed[-1], 60))
@@ -58,5 +56,4 @@ class TkProfilePlot(tk.Frame):
         self.measured.set_xdata(elapsed)
         self.canvas.draw()
         self.canvas.flush_events()
-        print("Draw")
 

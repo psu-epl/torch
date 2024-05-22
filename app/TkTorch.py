@@ -137,7 +137,6 @@ class Torch(tk.Tk):
         self.profile_plot.update_profile()
     
     def update_measurements(self):
-        print("update_measurements print")
         self.profile_plot.update_measurements(self.measured_temps, self.measured_elapsed)
 
     def show_status(self, status):

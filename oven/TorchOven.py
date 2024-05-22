@@ -12,6 +12,9 @@ import binascii
 from struct import pack, unpack, error as struct_error
 import time
 
+# Register definitions
+import oven.regs
+
 class TorchOven(object):
     def __init__(self, port=0):
         self.sp = serial.Serial(port, baudrate=9600, timeout=0.5)
@@ -38,14 +41,17 @@ class TorchOven(object):
         self.sp.flushInput()
         self.sp.write(msg)
         resp = self.sp.read(count*2 + 5)  # response has 2 byte header + 2 byte crc16, and 2 bytes per register
-        return unpack('>'+('H'*count), resp[3:-2])
+        rslt = unpack('>'+('H'*count), resp[3:-2])
+        for v in rslt:
+            print(f"{v:02X}", end=' ')
+        return
 
     def close(self):
         self.sp.close()
 
     def send_profile(self, profile):
         ''' profile is a list of 40 tuples (degrees_c, seconds)'''
-        base = 0x2000  # base of the profile table
+        base = regs.PROFILE_BASE  # base of the profile table
         for p in profile:
             print('writing profile entry', hex(base))
             print(binascii.b2a_hex(self.write_reg(base, p[0])))
@@ -59,18 +65,18 @@ class TorchOven(object):
         print(self.read_regs(0x1008, 3))
 
     def read_profile(self):
-        return self.read_regs(0x2000, 80)
+        return self.read_regs(regs.PROFILE_BASE, 80)
 
     def start(self):
         self.started = True
-        self.write_reg(0x1018, 1)  
+        self.write_reg(regs.RUNNING, 1)  
 
     def stop(self):
         self.started = False
-        self.write_reg(0x1018, 0)  
+        self.write_reg(regs.RUNNING, 0)  
 
     def read_temp(self):
-        return self.read_regs(0x1000, 1)[0]
+        return self.read_regs(regs.CURRENT_TEMP, 1)[0]
 
 class VirtualTorchOven(object):
     def __init__(self, port = 0):
