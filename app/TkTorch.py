@@ -54,6 +54,27 @@ class Torch(tk.Tk):
             self.profile_edit()
         
         self.protocol('WM_DELETE_WINDOW', self.confirm_exit)
+
+        # Connect to oven
+        try:
+            if self.simulate_oven.get():
+                self.oven = TorchOven.VirtualTorchOven()
+            elif port := PickComport(self):
+                if __debug__:
+                    print("Trying COM port:", port)
+                self.oven = TorchOven.TorchOven(port)
+            else:
+                print("No port found")
+                tk.messagebox.showerror(title='Oven Connectoin Error', message="No oven port selected")
+                return
+        except Exception as e:
+            if __debug__:
+                print(*sys.exc_info())
+            tk.messagebox.showerror(title='Error connecting to Oven', message=e)
+            return
+        
+        self.time_started = 0
+        self.timer_start()
     
     def confirm_exit(self):
         if self.profile.has_changes:
@@ -61,7 +82,14 @@ class Torch(tk.Tk):
             if res == None:
                 return
             if res == tk.YES:
-                self.profile.save_as()
+                self.profile.save()
+        
+        self.after_cancel(self.timer)
+        self.timer = None
+        self.oven.stop()
+        self.oven.close()
+        self.oven = None
+
         self.quit()
 
     def init_menu(self):
@@ -158,31 +186,17 @@ class Torch(tk.Tk):
         else:
             self.label_temp.config(text="Temp: {:3d} °C".format(self.last_temp))
 
-        self.label_time.config(text="Elapsed: {:02}:{:02}".format(self.elapsed_seconds//60, self.elapsed_seconds%60))
+        if self.oven is not None and self.oven.started:
+            self.label_time.config(text="Elapsed: {:02}:{:02}".format(self.elapsed_seconds//60, self.elapsed_seconds%60))
+        else:
+            self.label_time.config(text="Idle")
 
     def timer_start(self):
         self.timer = self.after(self.args.rate, self.action_read)
 
     def action_start(self):
-        assert(self.oven is None)
+        assert(self.oven is not None)
         self.label_time.config(text="Initializing")
-
-        try:
-            if self.simulate_oven.get():
-                self.oven = TorchOven.VirtualTorchOven()
-            elif port := PickComport(self):
-                if __debug__:
-                    print("Trying COM port:", port)
-                self.oven = TorchOven.TorchOven(port)
-            else:
-                print("No port found")
-                tk.messagebox.showerror(title='Oven Connectoin Error', message="No oven port selected")
-                return
-        except Exception as e:
-            if __debug__:
-                print(*sys.exc_info())
-            tk.messagebox.showerror(title='Error connecting to Oven', message=e)
-            return
             
         try:
             self.show_status("Oven Init...")
@@ -217,22 +231,22 @@ class Torch(tk.Tk):
         self.read_failures = 0
 
         self.update_bar()
+        self.after_cancel(self.timer)
+        self.timer = None
         self.timer_start()
 
     def action_stop(self):
-        assert(self.oven is not None and self.oven.started)
+        # assert(self.oven is not None and self.oven.started)
+
+        # self.after_cancel(self.timer)
+        # self.timer = None
 
         self.oven.stop()
-        self.oven.close()
-        self.oven = None
-
-        self.after_cancel(self.timer)
-        self.timer = None
-
         self.update_bar()
 
     def action_read(self):
-        assert(self.oven is not None and self.oven.started)
+        # assert(self.oven is not None and self.oven.started)
+        assert(self.oven is not None)
 
         elapsed = time.time() - self.time_started
         self.timer_start()
@@ -247,15 +261,16 @@ class Torch(tk.Tk):
             temp = "ERR"
         else:
             self.read_failures = 0 # Reset failures
-            self.elapsed_seconds = int(elapsed)
-            self.last_temp = temp
-            self.measured_elapsed.append(elapsed)
-            self.measured_temps.append(temp)        
+            if self.oven.started:
+                self.elapsed_seconds = int(elapsed)
+                self.last_temp = temp
+                self.measured_elapsed.append(elapsed)
+                self.measured_temps.append(temp)        
         finally:
             self.elapsed_seconds = int(elapsed)
             self.last_temp = temp
         
-        if elapsed >= self.profile.duration:
+        if self.oven.started and elapsed >= self.profile.duration:
             self.action_stop()
             tk.messagebox.showinfo(title='Reflow Cycle Complete', message="Reflow cycle has concluded.")
             return
@@ -264,8 +279,8 @@ class Torch(tk.Tk):
         self.update_measurements()
 
     def profile_edit(self, event=None):
-        if self.oven:
-            return
+        # if self.oven:
+        #     return
         dialog = DialogProfileEdit(self, self.profile)
         dialog.title("Torch - Edit Profile")
         im = Image.open(self.ICON_PATH)
@@ -274,18 +289,18 @@ class Torch(tk.Tk):
         # dialog.iconbitmap(self.ICON_PATH)
     
     def profile_open(self, event=None):
-        if self.oven:
-            return
+        # if self.oven:
+        #     return
         self.profile.open()
 
     def profile_save(self, event=None):
-        if self.oven:
-            return
+        # if self.oven:
+        #     return
         self.profile.save()
         
     def profile_save_as(self, event=None):
-        if self.oven:
-            return
+        # if self.oven:
+        #     return
         self.profile.save_as()
     
     def show_license(self):

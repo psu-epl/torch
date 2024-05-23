@@ -122,6 +122,7 @@ class Profile():
     PROFILE_FILETYPES = (('oven profiles', '*.prfl *.csv'),('All files', '*.*'))
 
     def open(self):
+        print("Open")
         directory, basename = os.path.split(self.filename)
         file = tk.filedialog.askopenfile(
             title="Open Oven Profile",
