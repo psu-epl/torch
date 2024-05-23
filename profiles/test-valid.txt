@@ -27,5 +27,14 @@ Temp,Time
 
 # Cool down all the things!!11!
 
-25,600
+25,500
+
+
+
+
+
+
+
+
+
 

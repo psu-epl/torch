@@ -4,6 +4,7 @@ Created on Apr 8, 2013
 @author: Pat Nystrom
 Pure Python implementation of Modbus crc16.
 '''
+from __future__ import print_function
 Crc16Rem = [
     0x0000, 0xC1C0, 0x81C1, 0x4001, 0x01C3, 0xC003, 0x8002, 0x41C2,
     0x01C6, 0xC006, 0x8007, 0x41C7, 0x0005, 0xC1C5, 0x81C4, 0x4004,
@@ -44,11 +45,11 @@ def block_crc16(data):  #unsigned int altCrc(unsigned int *byteBuf, int n_bytes)
       Modbus crc16 is returned. Send the high-order byte first on the wire.'''
     result = 0xffff
     for d in data:      # (i = 0; i < n_bytes; i++)
-        result = (result << 8) ^ Crc16Rem[((result>>8)^ord(d)) & 0xff];
+        result = (result << 8) ^ Crc16Rem[((result>>8)^d) & 0xff];
     return result & 0xffff
 
 
 if __name__=='__main__':
     ''' the crc16 of 'abc' is 0x4957. Since these are the last two bytes of
       the input string, the output must be 0x0000.'''
-    print hex(block_crc16('abc\x49\x57'))
+    print(hex(block_crc16('abc\x49\x57')))

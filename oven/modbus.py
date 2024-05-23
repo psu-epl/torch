@@ -4,6 +4,8 @@ Created on Mar 21, 2012
 @author: Pat Nystrom
 Modbus message formatting helper.
 '''
+from __future__ import absolute_import
+from __future__ import print_function
 import struct
 import binascii
 
@@ -170,14 +172,14 @@ if __name__=='__main__':
             
         def send_recv(self, msg):    
             m = struct.pack('>H3sB', 1, '', len(msg))+msg  # TID, 3 zeroes, length to follow, then message
-            print 'sending', b2a_hex(m)
+            print('sending', b2a_hex(m))
             self.sock.send(m)
             try:
                 d = self.sock.recv(100)
-                print 'got', b2a_hex(d)
+                print('got', b2a_hex(d))
                 return d
             except socket.timeout:
-                print 'timeout'
+                print('timeout')
                 return None
 
         def run(self):
@@ -188,17 +190,17 @@ if __name__=='__main__':
                         self.sock.close()
                         self.connect()
                         conn_count += 1
-                        print 'conn_count =', conn_count
+                        print('conn_count =', conn_count)
                 except Exception as E:
-                    print 'Exception in run', str(E)
+                    print('Exception in run', str(E))
         
         def kill(self):
-            print 'killing'
+            print('killing')
             self.die = True
             self.join(2)
             if self.sock:
                 self.sock.close()
-            print 'killed'
+            print('killed')
             
     class TelTestThread(threading.Thread):
         def __init__(self):
@@ -217,23 +219,23 @@ if __name__=='__main__':
                 try:
                     d = self.sock.recv(2048)
                     if d:
-                        print d
+                        print(d)
                     else:
-                        print 'did not get data'
+                        print('did not get data')
                     self.sock.close()
                     self.connect()
                     conn_count += 1
-                    print 'conn_count =', conn_count
+                    print('conn_count =', conn_count)
                 except Exception as E:
-                    print 'Exception in run', str(E)
+                    print('Exception in run', str(E))
         
         def kill(self):
-            print 'killing'
+            print('killing')
             self.die = True
             self.join(2)
             if self.sock:
                 self.sock.close()
-            print 'killed'
+            print('killed')
             
     class SerTestThread(threading.Thread):
         def __init__(self, port):
@@ -248,20 +250,20 @@ if __name__=='__main__':
                     numch = self.port.inWaiting()
                     if numch:
                         c += self.port.read(numch)
-                    print binascii.b2a_hex(c)
+                    print(binascii.b2a_hex(c))
                 
         def kill(self):
             self.die = True
             self.join(2)
-            print 'killed'
+            print('killed')
 
     import serial
     from ne.basf_ext.basf_ext import modbus_crc16
 
     f = Formatter()
-    print binascii.b2a_hex(f.write_file_record([
+    print(binascii.b2a_hex(f.write_file_record([
         (4, 7, [0x6af, 0x4be, 0x100d])
-                                                ]))
+                                                ])))
 #    P = serial.Serial('COM40', 115200)                
 #    try:
 #        P.setTimeout(0.25)

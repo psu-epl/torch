@@ -3,61 +3,23 @@ Created on Mar 1, 2013
 
 @author: Pat Nystrom
 '''
+from __future__ import absolute_import
+from __future__ import print_function
 import serial
-import modbus as M
-from crc16 import block_crc16 as modbus_crc16
+from . import modbus as M
+from .crc16 import block_crc16 as modbus_crc16
 import binascii
 from struct import pack, unpack, error as struct_error
 import time
 
-DEFAULT_PROFILE = [
-                   (70, 12),
-                   (90, 20),
-                   (110, 8),
-                   (120, 5),
-                   (135, 5),
-                   (140, 5),
-                   (150, 8),
-                   (155, 10),
-                   (158, 10),
-                   (159, 10),
-                   (162, 10),
-                   (163, 10),
-                   (164, 10),
-                   (165, 10),
-                   (166, 10),
-                   (167, 10),
-                   (168, 10),
-                   (169, 10),
-                   (170, 10),
-                   (171, 3),
-                   (172, 1),
-                   (173, 1),
-                   (174, 3),
-                   (175, 5),
-                   (190, 20),
-                   (200, 5),
-                   (210, 10),
-                   (220, 15),
-                   (230, 15),
-                   (235, 20),
-                   (240, 25),
-                   (242, 30),
-                   (243, 30),
-                   (245, 10),
-                   (250, 8),
-                   (140, 10),
-                   (90, 30),
-                   (40, 30),
-                   (10, 30),
-                   (1, 150),
-                  ]
+# Register definitions
+import oven.regs as regs
 
 class TorchOven(object):
     def __init__(self, port=0):
-        self.sp = serial.Serial(port, baudrate=9600)
-        self.sp.setTimeout(0.5)
+        self.sp = serial.Serial(port, baudrate=9600, timeout=0.5)
         self.fmt = M.Formatter(addr=2)
+        self.started = False
 
     def cksum_msg(self, cmd):
         return cmd+pack('>H', modbus_crc16(cmd))
@@ -65,7 +27,7 @@ class TorchOven(object):
     def write_reg(self, reg, value):
         time.sleep(0.06)
         msg = self.cksum_msg(self.fmt.write_single_reg(reg, value))
-        print 'writing %.04x v=%d with cmd %s' % (reg, value, binascii.b2a_hex(msg))
+        print('writing %.04x v=%d with cmd %s' % (reg, value, binascii.b2a_hex(msg)))
         self.sp.write(msg)
         resp = self.sp.read(6) # If this were standard MODBUS, it would be an 8-byte read
         return resp
@@ -75,51 +37,61 @@ class TorchOven(object):
           return raw serial reply, including crc16 as last two bytes'''
         time.sleep(0.06)
         msg = self.cksum_msg(self.fmt.read_holding_regs(addr, count))
-        print 'reading reg %.04x with cmd %s' % (addr, binascii.b2a_hex(msg))
+        print('reading reg %.04x with cmd %s' % (addr, binascii.b2a_hex(msg)), end="=")
         self.sp.flushInput()
         self.sp.write(msg)
         resp = self.sp.read(count*2 + 5)  # response has 2 byte header + 2 byte crc16, and 2 bytes per register
-        return unpack('>'+('H'*count), resp[3:-2])
+        rslt = unpack('>'+('H'*count), resp[3:-2])
+        print("0x ", end='')
+        for v in rslt:
+            print(f"{v:02X}", end=' ')
+        print("")
+        return rslt
 
     def close(self):
         self.sp.close()
 
     def send_profile(self, profile):
         ''' profile is a list of 40 tuples (degrees_c, seconds)'''
-        base = 0x2000  # base of the profile table
+        base = regs.PROFILE_BASE  # base of the profile table
         for p in profile:
-            print 'writing profile entry', hex(base)
-            print binascii.b2a_hex(self.write_reg(base, p[0]))
-            print binascii.b2a_hex(self.write_reg(base+2, p[1]))
+            print('writing profile entry', hex(base))
+            print(binascii.b2a_hex(self.write_reg(base, p[0])))
+            print(binascii.b2a_hex(self.write_reg(base+2, p[1])))
             base += 4
 
     def init_sequence(self):
-        print self.read_regs(0x1004, 2)
-        print self.read_regs(0x1010, 2)
-        print self.read_regs(0x1014, 2)
-        print self.read_regs(0x1008, 3)
+        print(self.read_regs(0x1004, 2))
+        print(self.read_regs(0x1010, 2))
+        print(self.read_regs(0x1014, 2))
+        print(self.read_regs(0x1008, 3))
 
     def read_profile(self):
-        return self.read_regs(0x2000, 80)
+        return self.read_regs(regs.PROFILE_BASE, 80)
 
     def start(self):
-        self.write_reg(0x1018, 1)  
+        self.started = True
+        self.write_reg(regs.RUNNING, 1)  
 
     def stop(self):
-        self.write_reg(0x1018, 0)  
+        self.started = False
+        self.write_reg(regs.RUNNING, 0)  
 
     def read_temp(self):
-        return self.read_regs(0x1000, 1)[0]
+        return self.read_regs(regs.CURRENT_TEMP, 1)[0]
 
 class VirtualTorchOven(object):
     def __init__(self, port = 0):
         self.started = False
 
     def init_sequence(self):
+        time.sleep(0.1)
         pass
 
     def send_profile(self, profile):
         self.profile = profile
+        for line in profile:
+            time.sleep(0.01)
 
     def read_profile(self):
         return self.profile
@@ -168,9 +140,9 @@ if __name__=='__main__':
             start = time.time()
             while (time.time() - start) < 30:
                 try:
-                    print oven.read_temp()
+                    print("Temp: " + oven.read_temp())
                 except struct_error as E:
-                    print 'Exception reading temp', str(E)
+                    print('Exception reading temp', str(E))
         finally:
             oven.stop()
     finally:

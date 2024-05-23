@@ -1,0 +1,13 @@
+
+Torch - Reflow Oven RN200+ Serial Controller
+
+https://github.com/psu-epl/torch
+
+Libraies:
+- Python https://docs.python.org/3/license.html
+- PySerial https://github.com/pyserial/pyserial
+- Tcl/Tk https://www.tcl.tk/software/tcltk/license.html
+- Matplotlib https://matplotlib.org/stable/users/project/license.html
+
+Assets:
+- Icon https://icon-icons.com/icon/fire/98982

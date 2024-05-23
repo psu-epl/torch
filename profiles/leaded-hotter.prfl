@@ -1,0 +1,59 @@
+
+# Profile for Reflow Oven
+# Can include up to 40 pairs of values.
+# Comments allowed at the end of lines
+
+Temp,Time # Header required before values. 
+
+# Pairs of values indicating target temperature and duration
+
+
+#! Phase: Pre-soak
+75, 60
+# ramp to 140 in 90s
+82, 10
+89, 10
+97, 10
+104, 10
+111, 10
+118, 10
+126, 10
+132, 10
+140, 10
+
+#! Phase: Soak
+# ramp to 190 in 100s
+145, 106
+150, 10
+155, 10
+160, 10
+165, 10
+170, 10
+175, 10
+180, 10
+185, 10
+190, 10
+
+#! Phase: Reflow
+# ramp to 240c in 90s
+196, 10
+201, 10
+207, 10
+212, 10
+217, 10
+223, 10
+229, 10
+234, 10
+240, 10
+
+#! Phase: Reflow (hold)
+# Keep 204C for 90s
+240, 90
+
+#! Phase: Cooling
+# Cool slowly until 100C in several steps
+0, 480
+
+# Cool all the way
+0, 120
+
