@@ -70,11 +70,12 @@ class Profile():
         self.errors = []         # Array of tuples with error lines.
         self.pairs = []          # Parsed profile as Array of tuples
         self.duration = None     # Full length of profile
+        self.filename = None
         
         if filename is None:
             if os.path.exists(self.LAST_FILE_PATH):
                 with open(self.LAST_FILE_PATH) as f:
-                    filename = f.readline()
+                    filename = f.readline().strip()
                     print("Reading file " + filename)
             if filename is None or len(filename) == 0:
                 filename = self.DEFAULT_PATH
