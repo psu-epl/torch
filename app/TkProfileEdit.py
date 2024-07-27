@@ -85,6 +85,7 @@ class Profile():
                 with open(filename) as file:
                     self.update(file.read())
         else:
+            print("NO WHY HERE? BAD!")
             self.update(DEFAULT_PROFILE)
         
         # Note: below must be set after first update.
@@ -92,7 +93,7 @@ class Profile():
         self.callback = callback # Callback to signal updated profile.
     
     def name(self):
-        name = os.path.basename(self.filename)
+        name = os.path.basename(self.filename) if self.filename is not None else "default"
         if self.has_changes:
             name += "*"
         return name
