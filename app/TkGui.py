@@ -74,8 +74,9 @@ def PickComport(parent):
     if not ports:
         tk.messagebox.showinfo(title='Comport Selection', message="No comports detected.")
         return None
-    elif len(ports) == 1:
-        return ports[0][0]
+    
+    # elif len(ports) == 1 and "USB" in ports[0][0].name:
+    #     return ports[0][0]
 
     shownPorts = []
     
