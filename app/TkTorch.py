@@ -84,11 +84,12 @@ class Torch(tk.Tk):
             if res == tk.YES:
                 self.profile.save()
         
-        self.after_cancel(self.timer)
-        self.timer = None
-        self.oven.stop()
-        self.oven.close()
-        self.oven = None
+        if self.oven is not None:
+            self.after_cancel(self.timer)
+            self.timer = None
+            self.oven.stop()
+            self.oven.close()
+            self.oven = None
 
         self.quit()
 
