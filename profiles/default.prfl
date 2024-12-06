@@ -1,0 +1,47 @@
+# Profile for Reflow Oven
+# Can include up to 40 pairs of values.
+# Comments allowed at the end of lines
+
+Temp,Time # Header required before values. 
+
+# Pairs of values indicating numpytarget temperature and duration
+70,  12
+90,  20
+110,   8
+120,   5
+135,   5
+140,   5
+150,   8
+155,  10
+158,  10
+159,  10
+162,  10
+163,  10
+164,  10
+165,  10
+166,  10
+167,  10
+168,  10
+169,  10
+170,  10
+171,   3
+172,   1
+173,   1
+174,   3
+175,   5
+190,  20
+200,   5
+210,  10
+220,  15
+230,  15
+235,  20
+240,  25
+242,  30
+243,  30
+245,  10
+250,   8
+140,  10 # Start of cooldown
+90,  30
+40,  30
+10,  30
+1, 150

@@ -10,56 +10,6 @@ import tkinter as tk
 
 from .TkGui import *
 
-DEFAULT_PROFILE = """
-# Profile for Reflow Oven
-# Can include up to 40 pairs of values.
-# Comments allowed at the end of lines
-
-Temp,Time # Header required before values. 
-
-# Pairs of values indicating target temperature and duration
-70,  12
-90,  20
-110,   8
-120,   5
-135,   5
-140,   5
-150,   8
-155,  10
-158,  10
-159,  10
-162,  10
-163,  10
-164,  10
-165,  10
-166,  10
-167,  10
-168,  10
-169,  10
-170,  10
-171,   3
-172,   1
-173,   1
-174,   3
-175,   5
-190,  20
-200,   5
-210,  10
-220,  15
-230,  15
-235,  20
-240,  25
-242,  30
-243,  30
-245,  10
-250,   8
-140,  10 # Start of cooldown
-90,  30
-40,  30
-10,  30
-1, 150
-"""
-
 class Profile():
     MAX_LENGTH = 40 # From listening to the Torch's controller - might be changeable, *might not*
     DEFAULT_PATH = "profiles/default.prfl"
@@ -79,6 +29,8 @@ class Profile():
                     print("Reading file " + filename)
             if filename is None or len(filename) == 0:
                 filename = self.DEFAULT_PATH
+                self.filename = filename
+                self.save_last()
                 print("No previous file found, loading default")
         if filename:
             if os.path.exists(filename):
@@ -138,10 +90,12 @@ class Profile():
             self.update(file.read())
             self.has_changes = False # Clear dirty flag after load.
             file.close()
-            with open(self.LAST_FILE_PATH, "w") as f:
-                f.write(self.filename)
-        
+            self.save_last()
         return file
+
+    def save_last(self):
+        with open(self.LAST_FILE_PATH, "w") as f:
+            f.write(self.filename)
 
     def save_as(self):
         directory, basename = os.path.split(self.filename)
@@ -163,9 +117,9 @@ class Profile():
             with open(self.LAST_FILE_PATH, "w") as f:
                 f.write(self.filename)
 
-    RE_COMMENT   = re.compile("^\s*(?:#.*)?$")
-    RE_HEADER    = re.compile("^\s*TEMP\s*,\s*TIME\s*(?:#.*)?$", re.IGNORECASE)
-    RE_TEMP_TIME = re.compile("^\s*\d+\s*,\s*\d+\s*(?:#.*)?$")
+    RE_COMMENT   = re.compile(r"^\s*(?:#.*)?$")
+    RE_HEADER    = re.compile(r"^\s*TEMP\s*,\s*TIME\s*(?:#.*)?$", re.IGNORECASE)
+    RE_TEMP_TIME = re.compile(r"^\s*\d+\s*,\s*\d+\s*(?:#.*)?$")
     def Validate(text, first_error_only=False):
         "Validate the text of a profile. Returns an array of (Error, Line Number) tuples."
         errors = []
@@ -182,7 +136,7 @@ class Profile():
                     return errors
         return errors
 
-    RE_PAIRS     = re.compile("^\s*(\d+)\s*,\s*(\d+)\s*(?:#.*)?$", re.MULTILINE)
+    RE_PAIRS     = re.compile(r"^\s*(\d+)\s*,\s*(\d+)\s*(?:#.*)?$", re.MULTILINE)
     def Parse(text):
         "Parse profile into array of (Temp, Time) tuples."
         return [(int(match.group(1)), int(match.group(2))) for match in Profile.RE_PAIRS.finditer(text)]

@@ -36,3 +36,4 @@ nosetests.xml
 
 # Last opened profile
 lastprofile.txt
+.venv
