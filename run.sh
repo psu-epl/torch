@@ -1,3 +1,4 @@
+#!/bin/bash
 # Check if a virtual environment exists, create it if not, and start it
 # Made by Benjamin Crall 2024, GNU General Public License v3.0
 VENV=".venv"
